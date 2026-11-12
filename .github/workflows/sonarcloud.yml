@@ -23,11 +23,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements-dev.lock
 
-      - name: Install dependencies
+      - name: Install dependencies (hash-locked, wheels only)
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-dev.txt
+          pip install --require-hashes --only-binary :all: -r requirements-dev.lock
 
       - name: Run tests with coverage
         run: >
@@ -38,6 +38,7 @@ jobs:
           --junitxml=test-results.xml
 
       - name: SonarQube Cloud scan
-        uses: SonarSource/sonarqube-scan-action@v6
+        # Pinned to the full commit SHA of tag v6.0.0 (githubactions:S7637)
+        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
