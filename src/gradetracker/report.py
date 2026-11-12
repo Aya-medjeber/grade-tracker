@@ -2,50 +2,41 @@
 
 from gradetracker.grades import average, letter_grade
 
+HONOURS_THRESHOLD = 80
 
-def class_report(students):
-    lines = []
-    count = 0
-    lines.append("=" * 40)
-    lines.append("CLASS REPORT")
-    lines.append("=" * 40)
+
+def _build_report(title, students, include=lambda avg: True):
+    """Shared report layout used by every report type (removes duplicated code)."""
+    lines = ["=" * 40, title, "=" * 40]
     for student in students:
-        name = student["name"]
-        scores = student["scores"]
-        avg = average(scores)
-        grade = letter_grade(avg)
-        lines.append(f"{name:<20} {avg:>6.1f}  {grade}")
+        avg = average(student["scores"])
+        if include(avg):
+            lines.append(f"{student['name']:<20} {avg:>6.1f}  {letter_grade(avg)}")
     lines.append("-" * 40)
     lines.append(f"Students: {len(students)}")
     return "\n".join(lines)
+
+
+def class_report(students):
+    return _build_report("CLASS REPORT", students)
 
 
 def honours_report(students):
-    lines = []
-    lines.append("=" * 40)
-    lines.append("HONOURS REPORT")
-    lines.append("=" * 40)
-    for student in students:
-        name = student["name"]
-        scores = student["scores"]
-        avg = average(scores)
-        grade = letter_grade(avg)
-        if avg >= 80:
-            lines.append(f"{name:<20} {avg:>6.1f}  {grade}")
-    lines.append("-" * 40)
-    lines.append(f"Students: {len(students)}")
-    return "\n".join(lines)
+    return _build_report(
+        "HONOURS REPORT", students, include=lambda avg: avg >= HONOURS_THRESHOLD
+    )
+
+
+def top_students(students):
+    """Return every student sharing the highest average (handles ties)."""
+    if not students:
+        return []
+    averages = {s["name"]: average(s["scores"]) for s in students}
+    best = max(averages.values())
+    return [name for name, avg in averages.items() if avg == best]
 
 
 def top_student(students):
-    # TODO: handle ties between students
-    best = None
-    best_avg = -1
-    for student in students:
-        avg = average(student["scores"])
-        if avg > best_avg:
-            best_avg = avg
-            best = student["name"]
-    # print("best student is", best)
-    # print("with average", best_avg)
-    return best
+    """Return the first top student, or None for an empty class."""
+    leaders = top_students(students)
+    return leaders[0] if leaders else None
