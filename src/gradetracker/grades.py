@@ -1,6 +1,16 @@
 """Core grade calculations for the Grade Tracker."""
 
 PASSING_GRADE = 50
+INVALID_GRADE = "INVALID"
+
+# (minimum score, letter) checked from highest to lowest
+GRADE_BOUNDARIES = (
+    (90, "A+"),
+    (80, "A"),
+    (70, "B"),
+    (60, "C"),
+    (PASSING_GRADE, "D"),
+)
 
 
 def average(scores):
@@ -11,31 +21,13 @@ def average(scores):
 
 
 def letter_grade(score):
-    if score is not None:
-        if score >= 0:
-            if score <= 100:
-                if score >= 90:
-                    return "A+"
-                else:
-                    if score >= 80:
-                        return "A"
-                    else:
-                        if score >= 70:
-                            return "B"
-                        else:
-                            if score >= 60:
-                                return "C"
-                            else:
-                                if score >= PASSING_GRADE:
-                                    return "D"
-                                else:
-                                    return "F"
-            else:
-                return "INVALID"
-        else:
-            return "INVALID"
-    else:
-        return "INVALID"
+    """Convert a 0-100 score to a letter grade, or INVALID if out of range."""
+    if score is None or score < 0 or score > 100:
+        return INVALID_GRADE
+    for minimum, letter in GRADE_BOUNDARIES:
+        if score >= minimum:
+            return letter
+    return "F"
 
 
 def is_passing(score):
