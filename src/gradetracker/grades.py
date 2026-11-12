@@ -1,5 +1,7 @@
 """Core grade calculations for the Grade Tracker."""
 
+import math
+
 PASSING_GRADE = 50
 INVALID_GRADE = "INVALID"
 
@@ -14,10 +16,10 @@ GRADE_BOUNDARIES = (
 
 
 def average(scores):
-    total = 0
-    for s in scores:
-        total = total + s
-    return total / len(scores)
+    """Mean of *scores*. Raises ValueError for an empty list instead of ZeroDivisionError."""
+    if not scores:
+        raise ValueError("cannot average an empty list of scores")
+    return sum(scores) / len(scores)
 
 
 def letter_grade(score):
@@ -31,14 +33,8 @@ def letter_grade(score):
 
 
 def is_passing(score):
-    if score >= PASSING_GRADE:
-        return True
-    else:
-        return False
+    return score >= PASSING_GRADE
 
 
 def is_perfect(scores):
-    avg = average(scores)
-    if avg == 100.0:
-        return True
-    return False
+    return math.isclose(average(scores), 100.0)
